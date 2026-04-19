@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wie tickst du? 🌟 – Mein Persönlichkeits-Quiz!</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@400;600;700;800&display=swap');
+
+  :root {
+    --sky: #e8f4fd;
+    --cloud: #ffffff;
+    --sun: #FFD166;
+    --coral: #EF8C6A;
+    --mint: #06D6A0;
+    --lilac: #BDA0F7;
+    --blue: #4A90E2;
+    --navy: #2C3E6B;
+    --soft-gray: #f0f4fa;
+    --text: #2d3748;
+    --text-light: #718096;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(160deg, #e8f4fd 0%, #f0e8ff 50%, #e8faf4 100%);
+    min-height: 100vh;
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* Floating background shapes */
+  body::before {
+    content: '';
+    position: fixed;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(189,160,247,0.15) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+
+  /* ========== SCREENS ========== */
+  .screen { display: none; animation: fadeIn 0.4s ease; }
+  .screen.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ========== HEADER ========== */
+  .top-bar {
+    text-align: center;
+    padding: 24px 0 8px;
+  }
+  .top-bar .emoji-title {
+    font-size: 3.2rem;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .top-bar h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--navy);
+    line-height: 1.1;
+  }
+  .top-bar p {
+    font-size: 1.05rem;
+    color: var(--text-light);
+    margin-top: 6px;
+  }
+
+  /* ========== CARD ========== */
+  .card {
+    background: white;
+    border-radius: 24px;
+    padding: 28px 28px 24px;
+    box-shadow: 0 4px 24px rgba(44,62,107,0.08);
+    margin: 20px 0;
+  }
+
+  /* ========== PROGRESS ========== */
+  .progress-wrap {
+    background: var(--soft-gray);
+    border-radius: 20px;
+    height: 12px;
+    margin: 12px 0 6px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, var(--mint), var(--blue));
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    font-size: 0.82rem;
+    color: var(--text-light);
+    text-align: right;
+    margin-bottom: 16px;
+  }
+
+  /* ========== QUESTION CARD ========== */
+  .question-area {
+    background: white;
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 4px 24px rgba(44,62,107,0.08);
+    margin: 16px 0;
+  }
+
+  .mascot-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .mascot {
+    font-size: 3rem;
+    flex-shrink: 0;
+    animation: bounce 2s infinite ease-in-out;
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+  }
+  .speech-bubble {
+    background: var(--sky);
+    border-radius: 18px 18px 18px 4px;
+    padding: 14px 18px;
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.45;
+    flex: 1;
+    position: relative;
+  }
+
+  /* ========== ANSWER OPTIONS ========== */
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .options.single { grid-template-columns: 1fr; }
+
+  .opt-btn {
+    background: var(--soft-gray);
+    border: 3px solid transparent;
+    border-radius: 18px;
+    padding: 14px 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.18s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.3;
+  }
+  .opt-btn .opt-emoji { font-size: 1.8rem; }
+  .opt-btn:hover {
+    background: #e8f0ff;
+    border-color: var(--blue);
+    transform: translateY(-2px);
+  }
+  .opt-btn.selected {
+    background: #e8f0ff;
+    border-color: var(--blue);
+    color: var(--navy);
+  }
+  .opt-btn.confirm-anim {
+    animation: popConfirm 0.3s ease;
+  }
+  @keyframes popConfirm {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+
+  /* ========== NAVIGATION ========== */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+  .btn {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    padding: 12px 26px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+  .btn-next {
+    background: linear-gradient(135deg, var(--blue), var(--lilac));
+    color: white;
+    box-shadow: 0 4px 14px rgba(74,144,226,0.35);
+  }
+  .btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(74,144,226,0.45); }
+  .btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-back {
+    background: transparent;
+    color: var(--text-light);
+    border: 2px solid #e2e8f0;
+  }
+  .btn-back:hover { background: var(--soft-gray); }
+
+  /* ========== START SCREEN ========== */
+  #screen-start .hero {
+    text-align: center;
+    padding: 10px 0 24px;
+  }
+  #screen-start .hero .big-emoji {
+    font-size: 5rem;
+    display: block;
+    margin-bottom: 10px;
+  }
+  #screen-start h2 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+  #screen-start p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-light);
+    max-width: 480px;
+    margin: 0 auto 8px;
+  }
+
+  .notice-box {
+    background: #fff9e6;
+    border: 2px solid var(--sun);
+    border-radius: 16px;
+    padding: 14px 18px;
+    font-size: 0.88rem;
+    color: #7a5c00;
+    line-height: 1.5;
+    margin: 16px 0;
+  }
+  .notice-box strong { display: block; margin-bottom: 4px; }
+
+  .child-name-area {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 16px;
+  }
+  .child-name-area input {
+    flex: 1;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 12px 18px;
+    border: 3px solid #e2e8f0;
+    border-radius: 50px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .child-name-area input:focus { border-color: var(--blue); }
+
+  .btn-start {
+    background: linear-gradient(135deg, var(--mint), var(--blue));
+    color: white;
+    font-size: 1.1rem;
+    padding: 13px 32px;
+    box-shadow: 0 4px 18px rgba(6,214,160,0.35);
+    border-radius: 50px;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    transition: all 0.2s ease;
+  }
+  .btn-start:hover { transform: translateY(-2px); }
+
+  /* ========== RESULT SCREEN ========== */
+  #screen-result .result-header {
+    text-align: center;
+    padding: 10px 0 20px;
+  }
+  #screen-result .result-header .big-emoji { font-size: 4.5rem; }
+  #screen-result .result-header h2 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--navy);
+    margin-top: 8px;
+  }
+  #screen-result .result-header p {
+    font-size: 0.92rem;
+    color: var(--text-light);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  .profile-bars {
+    margin: 8px 0 0;
+  }
+  .profile-bar-row {
+    margin-bottom: 14px;
+  }
+  .pb-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 5px;
+  }
+  .pb-track {
+    background: var(--soft-gray);
+    border-radius: 20px;
+    height: 14px;
+    overflow: hidden;
+  }
+  .pb-fill {
+    height: 100%;
+    border-radius: 20px;
+    transition: width 1.2s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  .result-section {
+    margin: 18px 0 0;
+  }
+  .result-section h3 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hint-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .hint-card {
+    background: var(--soft-gray);
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text);
+    border-left: 4px solid transparent;
+  }
+
+  .next-steps {
+    background: #f0fff8;
+    border: 2px solid var(--mint);
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-top: 16px;
+  }
+  .next-steps h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #1a7a5e;
+    margin-bottom: 8px;
+  }
+  .next-steps ul {
+    list-style: none;
+    padding: 0;
+  }
+  .next-steps ul li {
+    font-size: 0.88rem;
+    color: #1a7a5e;
+    line-height: 1.5;
+    padding: 3px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .next-steps ul li::before { content: '→'; flex-shrink: 0; }
+
+  .disclaimer {
+    background: #fff9e6;
+    border: 2px solid var(--sun);
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-size: 0.82rem;
+    color: #7a5c00;
+    line-height: 1.5;
+    margin-top: 14px;
+  }
+
+  .btn-print {
+    background: white;
+    color: var(--navy);
+    border: 3px solid var(--navy);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.95rem;
+    padding: 11px 24px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 16px;
+    width: 100%;
+    display: block;
+    text-align: center;
+  }
+  .btn-print:hover { background: var(--navy); color: white; }
+
+  .btn-restart {
+    background: var(--soft-gray);
+    color: var(--text-light);
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    display: block;
+    text-align: center;
+  }
+
+  /* ========== SECTION DIVIDER ========== */
+  .section-divider {
+    text-align: center;
+    padding: 14px 0 4px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 500px) {
+    .options { grid-template-columns: 1fr; }
+    .top-bar h1 { font-size: 1.5rem; }
+    .card { padding: 20px 16px; }
+    .question-area { padding: 20px 16px; }
+  }
+
+  @media print {
+    body { background: white !important; }
+    #screen-quiz, #screen-start { display: none !important; }
+    #screen-result { display: block !important; }
+    .btn-print, .btn-restart, .btn-back, .btn-next { display: none !important; }
+    .card, .question-area { box-shadow: none !important; border: 1px solid #ddd; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ========== START SCREEN ========== -->
+  <div id="screen-start" class="screen active">
+    <div class="top-bar">
+      <div class="emoji-title">🌈</div>
+      <h1>Wie tickst du?</h1>
+      <p>Dein ganz persönliches Quiz!</p>
+    </div>
+    <div class="card">
+      <div class="hero">
+        <span class="big-emoji">🦄🎉✨</span>
+        <h2>Hallo! Bereit loszulegen?</h2>
+        <p>Gleich stellen wir dir ein paar lustige Fragen – darüber, was du magst, wie du dich fühlst und wie du die Welt erlebst.</p>
+        <p style="margin-top:8px;">Es gibt keine richtigen oder falschen Antworten – sei einfach ehrlich! 😊</p>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <label style="font-weight: 800; font-size: 0.95rem; color: var(--navy); display: block; margin-bottom: 6px;">
+          Wie heißt du?
+        </label>
+        <div class="child-name-area">
+          <input type="text" id="childName" placeholder="Dein Vorname" maxlength="20">
+        </div>
+      </div>
+      <button class="btn-start" onclick="startQuiz()">🚀 Quiz starten!</button>
+    </div>
+  </div>
+
+  <!-- ========== QUIZ SCREEN ========== -->
+  <div id="screen-quiz" class="screen">
+    <div class="top-bar">
+      <div class="emoji-title">🌟</div>
+      <h1 id="quiz-title">Wie tickst du?</h1>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="progressLabel">Frage 1 von 30</div>
+
+    <div class="question-area">
+      <div class="mascot-wrap">
+        <div class="mascot" id="mascotEmoji">🦊</div>
+        <div class="speech-bubble" id="questionText">Lädt…</div>
+      </div>
+      <div class="options" id="optionsContainer"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-back" id="btnBack" onclick="prevQuestion()" disabled>← Zurück</button>
+      <button class="btn btn-next" id="btnNext" onclick="nextQuestion()" disabled>Weiter →</button>
+    </div>
+  </div>
+
+  <!-- ========== RESULT SCREEN ========== -->
+  <div id="screen-result" class="screen">
+    <div id="resultContent"></div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+
+const DOMAINS = {
+  autism:    { label: 'Autismus-Spektrum (ASS)',  color: '#BDA0F7', emoji: '🧩' },
+  adhs:      { label: 'ADHS (Hyperaktiv)',         color: '#EF8C6A', emoji: '⚡' },
+  ads:       { label: 'ADS (ohne Hyperaktivität)', color: '#4A90E2', emoji: '🌊' },
+  hsp:       { label: 'Hochsensibilität (HSP)',    color: '#06D6A0', emoji: '🌿' },
+  dys:       { label: 'Lese-/Rechtschreibschwäche (LRS)', color: '#FFD166', emoji: '📖' },
+};
+
+// Mascots per section
+const MASCOTS = ['🦊','🐙','🦋','🐘','🌟','🦄'];
+
+// Questions: { q: text, opts: [{label, emoji, scores: {domain: n}}] }
+const QUESTIONS = [
+  // --- FREUNDE & SPIELEN ---
+  {
+    section: 'Freunde & Spielen',
+    mascot: '🦊',
+    q: 'Was machst du in der Pause am liebsten?',
+    opts: [
+      { label: 'Alleine spielen oder einfach zuschauen', emoji: '🪞', scores: { autism: 2, ads: 1 } },
+      { label: 'Mit einem einzigen Freund spielen', emoji: '🤝', scores: { autism: 1 } },
+      { label: 'Mit ganz vielen Kindern zusammen', emoji: '🎉', scores: { adhs: 1 } },
+      { label: 'Mal so, mal so', emoji: '🎭', scores: {} },
+    ]
+  },
+  {
+    section: 'Freunde & Spielen',
+    mascot: '🦊',
+    q: 'Ein neues Kind kommt in deine Klasse. Was machst du?',
+    opts: [
+      { label: 'Ich schaue erst mal, ob es die gleichen Hobbys hat wie ich', emoji: '🎮', scores: { autism: 2 } },
+      { label: 'Ich gehe sofort hin und rede es an', emoji: '😄', scores: { adhs: 1 } },
+      { label: 'Ich bin schüchtern und warte lieber ab', emoji: '🐢', scores: { ads: 2, hsp: 1 } },
+      { label: 'Ich beobachte es erst eine Weile', emoji: '👀', scores: { autism: 1, hsp: 1 } },
+    ]
+  },
+  {
+    section: 'Freunde & Spielen',
+    mascot: '🦊',
+    q: 'Wenn du dich mit jemandem streitest – wie fühlst du dich danach?',
+    opts: [
+      { label: 'Sehr schlecht – ich denke lange daran', emoji: '😟', scores: { hsp: 2, autism: 1 } },
+      { label: 'Ich weiß oft gar nicht warum wir uns gestritten haben', emoji: '❓', scores: { autism: 2 } },
+      { label: 'Ich werde schnell laut und bereue es dann', emoji: '💥', scores: { adhs: 2 } },
+      { label: 'Ich versuche es schnell wieder gut zu machen', emoji: '🕊️', scores: {} },
+    ]
+  },
+
+  // --- SCHULE & LERNEN ---
+  {
+    section: 'Schule & Lernen',
+    mascot: '🐙',
+    q: 'Wenn die Lehrerin oder der Lehrer etwas erklärt – was passiert bei dir?',
+    opts: [
+      { label: 'Meine Gedanken wandern ständig woanders hin', emoji: '☁️', scores: { adhs: 2, ads: 2 } },
+      { label: 'Ich höre zu, aber Geräusche stören mich sehr', emoji: '🔊', scores: { hsp: 2, autism: 1 } },
+      { label: 'Ich höre gut zu, wenn das Thema cool ist', emoji: '✅', scores: {} },
+      { label: 'Ich bin so vertieft, dass ich alles andere vergesse', emoji: '🔭', scores: { autism: 1 } },
+    ]
+  },
+  {
+    section: 'Schule & Lernen',
+    mascot: '🐙',
+    q: 'Wie läuft das bei dir mit Hausaufgaben?',
+    opts: [
+      { label: 'Ich fange an, aber höre schnell wieder auf', emoji: '🎯', scores: { adhs: 2, ads: 2 } },
+      { label: 'Ich mache sie, aber es dauert super lange', emoji: '⏳', scores: { ads: 1, hsp: 1, dys: 1 } },
+      { label: 'Bei Lieblingsthemen geht es gut', emoji: '💡', scores: { autism: 1 } },
+      { label: 'Kein Problem, ich mache sie einfach', emoji: '✔️', scores: {} },
+    ]
+  },
+  {
+    section: 'Schule & Lernen',
+    mascot: '🐙',
+    q: 'Wie ist das Lesen für dich?',
+    opts: [
+      { label: 'Manchmal tanzen die Buchstaben oder Wörter durcheinander', emoji: '🔤', scores: { dys: 3 } },
+      { label: 'Ich lese langsamer als die anderen', emoji: '🐌', scores: { dys: 2, ads: 1 } },
+      { label: 'Wenn das Thema spannend ist, lese ich gerne', emoji: '📚', scores: { autism: 1 } },
+      { label: 'Lesen macht mir keine Probleme', emoji: '👍', scores: {} },
+    ]
+  },
+  {
+    section: 'Schule & Lernen',
+    mascot: '🐙',
+    q: 'Wenn du etwas aufschreiben sollst – wie geht es dir dabei?',
+    opts: [
+      { label: 'Schreiben fällt mir generell schwer', emoji: '✏️', scores: { dys: 2 } },
+      { label: 'Ich mache viele Rechtschreibfehler', emoji: '❌', scores: { dys: 3 } },
+      { label: 'Ich komme gedanklich nicht mit und verliere den Faden', emoji: '💭', scores: { ads: 2, adhs: 1 } },
+      { label: 'Geht gut bei mir', emoji: '✅', scores: {} },
+    ]
+  },
+
+  // --- KÖRPER & ENERGIE ---
+  {
+    section: 'Körper & Energie',
+    mascot: '🦋',
+    q: 'Ruhig sitzen im Unterricht – wie klappt das?',
+    opts: [
+      { label: 'Sehr schwer – ich muss mich ständig bewegen', emoji: '🏃', scores: { adhs: 3 } },
+      { label: 'Ich wackle oder trommle meistens mit den Fingern', emoji: '🥁', scores: { adhs: 2, autism: 1 } },
+      { label: 'Ich bin eher ruhig und still', emoji: '🧘', scores: { ads: 1 } },
+      { label: 'Kein Problem für mich', emoji: '✅', scores: {} },
+    ]
+  },
+  {
+    section: 'Körper & Energie',
+    mascot: '🦋',
+    q: 'Du musst warten, bis du dran bist. Wie ist das für dich?',
+    opts: [
+      { label: 'Fast unmöglich – ich platze fast raus!', emoji: '💣', scores: { adhs: 3 } },
+      { label: 'Schwer, aber ich schaffe es irgendwie', emoji: '😤', scores: { adhs: 1 } },
+      { label: 'Ich bin dann gedanklich ganz woanders', emoji: '🌈', scores: { ads: 2 } },
+      { label: 'Kein Problem', emoji: '😌', scores: {} },
+    ]
+  },
+  {
+    section: 'Körper & Energie',
+    mascot: '🦋',
+    q: 'Passiert es dir, dass du einfach drauflosredest, ohne zu warten?',
+    opts: [
+      { label: 'Ja, sehr oft – ich kann mich kaum stoppen', emoji: '🗣️', scores: { adhs: 3 } },
+      { label: 'Manchmal rutscht es mir raus', emoji: '🤭', scores: { adhs: 1 } },
+      { label: 'Eher selten', emoji: '🤫', scores: {} },
+      { label: 'Nein, ich sage eher zu wenig', emoji: '🐚', scores: { ads: 1, autism: 1 } },
+    ]
+  },
+
+  // --- SINNE & GERÄUSCHE ---
+  {
+    section: 'Sinne & Geräusche',
+    mascot: '🐘',
+    q: 'Laute Geräusche – zum Beispiel die Schulglocke oder eine Sirene. Wie ist das für dich?',
+    opts: [
+      { label: 'Tut fast weh – ich halte mir die Ohren zu', emoji: '😣', scores: { hsp: 2, autism: 2 } },
+      { label: 'Stört mich mehr als die anderen Kinder', emoji: '😖', scores: { hsp: 1, autism: 1 } },
+      { label: 'Ich merke es kaum', emoji: '😐', scores: { adhs: 1 } },
+      { label: 'Ist ganz normal für mich', emoji: '👍', scores: {} },
+    ]
+  },
+  {
+    section: 'Sinne & Geräusche',
+    mascot: '🐘',
+    q: 'Stören dich manchmal Sachen an Kleidung – z.B. kratzige Nähte oder Etiketten?',
+    opts: [
+      { label: 'Ja, sehr! Das macht mich richtig verrückt', emoji: '😤', scores: { autism: 3, hsp: 1 } },
+      { label: 'Manchmal stört es mich ein bisschen', emoji: '😕', scores: { autism: 1, hsp: 1 } },
+      { label: 'Nicht wirklich', emoji: '🤷', scores: {} },
+      { label: 'Gar nicht', emoji: '✅', scores: {} },
+    ]
+  },
+  {
+    section: 'Sinne & Geräusche',
+    mascot: '🐘',
+    q: 'Wenn dich jemand umarmt oder anfasst – magst du das?',
+    opts: [
+      { label: 'Oft nicht – vor allem wenn ich nicht damit rechne', emoji: '🙅', scores: { autism: 2, hsp: 1 } },
+      { label: 'Kommt drauf an wer es ist', emoji: '🤔', scores: {} },
+      { label: 'Ja, ich mag das meistens', emoji: '🤗', scores: {} },
+      { label: 'Ich mag ganz viel Körperkontakt', emoji: '💞', scores: {} },
+    ]
+  },
+  {
+    section: 'Sinne & Geräusche',
+    mascot: '🐘',
+    q: 'Das Licht in der Schule – zum Beispiel helles Neonlicht. Stört dich das?',
+    opts: [
+      { label: 'Ja, das tut fast weh in den Augen', emoji: '😵', scores: { hsp: 2, autism: 2 } },
+      { label: 'Ein bisschen schon', emoji: '😒', scores: { hsp: 1 } },
+      { label: 'Nicht wirklich', emoji: '😐', scores: {} },
+      { label: 'Nein, gar nicht', emoji: '👍', scores: {} },
+    ]
+  },
+
+  // --- ALLTAG & HOBBYS ---
+  {
+    section: 'Alltag & Hobbys',
+    mascot: '🌟',
+    q: 'Der Schulausflug fällt aus – einfach so, ganz plötzlich. Wie reagierst du?',
+    opts: [
+      { label: 'Das macht mich richtig fertig – ich bin total durcheinander', emoji: '😭', scores: { autism: 3 } },
+      { label: 'Das stört mich schon, aber ich kriege mich wieder ein', emoji: '😟', scores: { autism: 1, hsp: 1 } },
+      { label: 'Ist mir meistens egal', emoji: '🤷', scores: { adhs: 1 } },
+      { label: 'Ich finde Abwechslung manchmal sogar gut', emoji: '🎉', scores: { adhs: 1 } },
+    ]
+  },
+  {
+    section: 'Alltag & Hobbys',
+    mascot: '🌟',
+    q: 'Gibt es ein Thema, über das du ewig reden könntest?',
+    opts: [
+      { label: 'Ja! Über ein bestimmtes Thema könnte ich stundenlang reden', emoji: '🔥', scores: { autism: 3 } },
+      { label: 'Ja, aber mein Lieblingsthema wechselt oft', emoji: '🌀', scores: { adhs: 1 } },
+      { label: 'Nicht wirklich', emoji: '🤷', scores: {} },
+      { label: 'Ich mag viele verschiedene Dinge', emoji: '🌈', scores: {} },
+    ]
+  },
+  {
+    section: 'Alltag & Hobbys',
+    mascot: '🌟',
+    q: 'Hast du bestimmte Dinge, die du jeden Tag gleich machen musst?',
+    opts: [
+      { label: 'Ja – wenn das nicht klappt, werde ich ganz unruhig', emoji: '⚙️', scores: { autism: 3 } },
+      { label: 'Ich mag es wenn es immer gleich ist, aber ich brauche es nicht unbedingt', emoji: '🔄', scores: { autism: 1 } },
+      { label: 'Nicht wirklich, ich bin eher spontan', emoji: '🎲', scores: { adhs: 1 } },
+      { label: 'Nein, das ist mir egal', emoji: '✅', scores: {} },
+    ]
+  },
+  {
+    section: 'Alltag & Hobbys',
+    mascot: '🌟',
+    q: 'Wenn du aufgeregt oder gestresst bist – schaukelst, hüpfst oder wackelst du dann manchmal?',
+    opts: [
+      { label: 'Ja, das mache ich oft – ich kann kaum damit aufhören', emoji: '🌊', scores: { autism: 3 } },
+      { label: 'Manchmal, ohne dass ich es merke', emoji: '🤔', scores: { autism: 1 } },
+      { label: 'Kaum oder nie', emoji: '✅', scores: {} },
+      { label: 'Nur beim Sport oder Spielen', emoji: '⚽', scores: {} },
+    ]
+  },
+
+  // --- GEFÜHLE ---
+  {
+    section: 'Gefühle',
+    mascot: '🦄',
+    q: 'Wenn du traurig oder wütend bist – wie stark ist das Gefühl?',
+    opts: [
+      { label: 'Riesig – ich komme da ganz schwer wieder raus', emoji: '🌊', scores: { hsp: 2, adhs: 1, autism: 1 } },
+      { label: 'Stark, aber ich kriege mich wieder ein', emoji: '😔', scores: { hsp: 1 } },
+      { label: 'Normal', emoji: '😐', scores: {} },
+      { label: 'Es geht schnell wieder weg', emoji: '☀️', scores: { adhs: 1 } },
+    ]
+  },
+  {
+    section: 'Gefühle',
+    mascot: '🦄',
+    q: 'Weißt du meistens, warum du dich so fühlst wie du dich fühlst?',
+    opts: [
+      { label: 'Nein – meine Gefühle sind oft ein Rätsel für mich', emoji: '❓', scores: { autism: 2 } },
+      { label: 'Manchmal kommen Gefühle einfach so über mich', emoji: '🌪️', scores: { adhs: 1, hsp: 1 } },
+      { label: 'Ja, meistens schon', emoji: '✅', scores: {} },
+      { label: 'Ich fühle alles sehr stark und sehr viel', emoji: '❤️‍🔥', scores: { hsp: 2 } },
+    ]
+  },
+  {
+    section: 'Gefühle',
+    mascot: '🦄',
+    q: 'Hast du manchmal das Gefühl, dass du irgendwie anders bist als die anderen Kinder?',
+    opts: [
+      { label: 'Ja, oft – manches verstehen die anderen einfach anders als ich', emoji: '🌍', scores: { autism: 2, hsp: 1 } },
+      { label: 'Ja – ich bin irgendwie immer zu viel oder zu leise', emoji: '⚖️', scores: { adhs: 1, hsp: 1 } },
+      { label: 'Manchmal schon', emoji: '🤔', scores: { hsp: 1 } },
+      { label: 'Nicht wirklich', emoji: '✅', scores: {} },
+    ]
+  },
+  {
+    section: 'Gefühle',
+    mascot: '🦄',
+    q: 'Wie geht es dir nach einem langen Schultag?',
+    opts: [
+      { label: 'Total kaputt – ich brauche absolute Ruhe', emoji: '😴', scores: { hsp: 2, autism: 2 } },
+      { label: 'Müde, aber ich erhole mich schnell', emoji: '😪', scores: {} },
+      { label: 'Ich habe noch richtig viel Energie', emoji: '⚡', scores: { adhs: 2 } },
+      { label: 'Kommt auf den Tag an', emoji: '🎭', scores: { hsp: 1 } },
+    ]
+  },
+
+  // --- VERGESSEN & ORDNUNG ---
+  {
+    section: 'Vergessen & Ordnung',
+    mascot: '🦊',
+    q: 'Verlierst du oft Sachen – z.B. Stifte, dein Mäppchen oder die Hausaufgaben?',
+    opts: [
+      { label: 'Ja, ständig – das ist ein echtes Problem', emoji: '🔍', scores: { adhs: 3 } },
+      { label: 'Manchmal passiert mir das', emoji: '🤔', scores: { adhs: 1, ads: 1 } },
+      { label: 'Selten', emoji: '✅', scores: {} },
+      { label: 'Nie – ich habe alles immer ordentlich', emoji: '🗂️', scores: { autism: 1 } },
+    ]
+  },
+  {
+    section: 'Vergessen & Ordnung',
+    mascot: '🦊',
+    q: 'Du sollst drei Sachen auf einmal machen. Was passiert?',
+    opts: [
+      { label: 'Ich weiß gar nicht wo ich anfangen soll', emoji: '😵', scores: { adhs: 2, ads: 2, autism: 1 } },
+      { label: 'Ich fange eine an, springe dann zur nächsten', emoji: '🐸', scores: { adhs: 2 } },
+      { label: 'Ich mache einfach eine nach der anderen', emoji: '📋', scores: {} },
+      { label: 'Ich brauche eine genaue Liste', emoji: '✅', scores: { autism: 1 } },
+    ]
+  },
+  {
+    section: 'Vergessen & Ordnung',
+    mascot: '🦊',
+    q: 'Vergisst du manchmal Sachen, obwohl du sie dir eigentlich merken wolltest?',
+    opts: [
+      { label: 'Ja, sehr oft – obwohl ich es wirklich wollte', emoji: '🧠', scores: { adhs: 3, ads: 2 } },
+      { label: 'Manchmal, wenn gerade viel los ist', emoji: '📅', scores: { ads: 1, adhs: 1 } },
+      { label: 'Selten', emoji: '✅', scores: {} },
+      { label: 'Nein, ich erinnere mich gut an Sachen', emoji: '💪', scores: {} },
+    ]
+  },
+
+  // --- ZUM SCHLUSS ---
+  {
+    section: 'Zum Schluss',
+    mascot: '🌟',
+    q: 'Wann macht Schule am meisten Spaß?',
+    opts: [
+      { label: 'Wenn ich über mein Lieblingsthema reden darf', emoji: '🔥', scores: { autism: 2 } },
+      { label: 'Wenn wir etwas bauen oder ausprobieren dürfen', emoji: '🏗️', scores: { adhs: 1 } },
+      { label: 'Wenn es ruhig ist und ich weiß was als nächstes kommt', emoji: '📐', scores: { ads: 1, autism: 1 } },
+      { label: 'Wenn ich mit meinen Freunden zusammen bin', emoji: '🧑‍🤝‍🧑', scores: {} },
+    ]
+  },
+  {
+    section: 'Zum Schluss',
+    mascot: '🌟',
+    q: 'Was kannst du besonders gut?',
+    opts: [
+      { label: 'Ich weiß wahnsinnig viel über mein Lieblingsthema', emoji: '🏆', scores: { autism: 2 } },
+      { label: 'Ich habe ständig neue Ideen', emoji: '🎨', scores: { adhs: 1 } },
+      { label: 'Ich merke schnell wie es anderen geht', emoji: '❤️', scores: { hsp: 2 } },
+      { label: 'Ich bin zuverlässig und vergesse nichts', emoji: '📌', scores: {} },
+    ]
+  },
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentQ = 0;
+let answers = []; // index = question index, value = option index
+let childName = '';
+let scores = { autism: 0, adhs: 0, ads: 0, hsp: 0, dys: 0 };
+
+// ============================================================
+// FUNCTIONS
+// ============================================================
+
+function startQuiz() {
+  childName = document.getElementById('childName').value.trim() || 'das Kind';
+  document.getElementById('quiz-title').textContent = `Wie tickst du, ${childName.split(' ')[0]}?`;
+  answers = new Array(QUESTIONS.length).fill(null);
+  scores = { autism: 0, adhs: 0, ads: 0, hsp: 0, dys: 0 };
+  currentQ = 0;
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const total = QUESTIONS.length;
+
+  // Progress
+  const pct = Math.round((currentQ / total) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `Frage ${currentQ + 1} von ${total} · ${q.section}`;
+
+  // Mascot + Question
+  document.getElementById('mascotEmoji').textContent = q.mascot;
+  document.getElementById('questionText').textContent = q.q;
+
+  // Options
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+  container.className = 'options' + (q.opts.length <= 2 ? ' single' : '');
+
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn' + (answers[currentQ] === i ? ' selected' : '');
+    btn.innerHTML = `<span class="opt-emoji">${opt.emoji}</span>${opt.label}`;
+    btn.addEventListener('click', () => selectOption(i, btn));
+    container.appendChild(btn);
+  });
+
+  // Nav buttons
+  document.getElementById('btnBack').disabled = currentQ === 0;
+  document.getElementById('btnNext').disabled = answers[currentQ] === null;
+  document.getElementById('btnNext').textContent =
+    currentQ === total - 1 ? 'Fertig! 🎉' : 'Weiter →';
+}
+
+function selectOption(idx, btn) {
+  answers[currentQ] = idx;
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected', 'confirm-anim');
+  setTimeout(() => btn.classList.remove('confirm-anim'), 300);
+  document.getElementById('btnNext').disabled = false;
+}
+
+function nextQuestion() {
+  if (answers[currentQ] === null) return;
+  if (currentQ < QUESTIONS.length - 1) {
+    currentQ++;
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    computeAndShowResult();
+  }
+}
+
+function prevQuestion() {
+  if (currentQ > 0) {
+    currentQ--;
+    renderQuestion();
+  }
+}
+
+// ============================================================
+// SCORING & RESULT
+// ============================================================
+
+function computeAndShowResult() {
+  // Reset scores
+  scores = { autism: 0, adhs: 0, ads: 0, hsp: 0, dys: 0 };
+
+  QUESTIONS.forEach((q, qi) => {
+    const ai = answers[qi];
+    if (ai === null) return;
+    const opt = q.opts[ai];
+    if (opt.scores) {
+      for (const [domain, val] of Object.entries(opt.scores)) {
+        scores[domain] = (scores[domain] || 0) + val;
+      }
+    }
+  });
+
+  // Normalize to max possible per domain
+  const maxScores = { autism: 0, adhs: 0, ads: 0, hsp: 0, dys: 0 };
+  QUESTIONS.forEach(q => {
+    // find max score for each domain across all options
+    const domainMax = {};
+    q.opts.forEach(opt => {
+      if (opt.scores) {
+        for (const [d, v] of Object.entries(opt.scores)) {
+          domainMax[d] = Math.max(domainMax[d] || 0, v);
+        }
+      }
+    });
+    for (const [d, v] of Object.entries(domainMax)) {
+      maxScores[d] = (maxScores[d] || 0) + v;
+    }
+  });
+
+  // Percentages
+  const pct = {};
+  for (const d of Object.keys(scores)) {
+    pct[d] = maxScores[d] > 0 ? Math.min(100, Math.round((scores[d] / maxScores[d]) * 100)) : 0;
+  }
+
+  showResult(pct);
+}
+
+// Interpretation thresholds
+const LEVELS = [
+  { min: 0,  max: 24,  label: 'Kein Hinweis',           color: '#b0bec5' },
+  { min: 25, max: 49,  label: 'Schwacher Hinweis',       color: '#81c784' },
+  { min: 50, max: 69,  label: 'Mäßiger Hinweis',         color: '#FFB74D' },
+  { min: 70, max: 84,  label: 'Deutlicher Hinweis',      color: '#EF8C6A' },
+  { min: 85, max: 100, label: 'Starker Hinweis',         color: '#E57373' },
+];
+
+function getLevel(p) {
+  return LEVELS.find(l => p >= l.min && p <= l.max) || LEVELS[0];
+}
+
+const DOMAIN_HINTS = {
+  autism: {
+    50: [
+      'Möglicherweise Schwierigkeiten mit sozialen Regeln oder unstrukturierten Situationen',
+      'Starke Interessen an spezifischen Themen könnten auffallen',
+      'Sensitivität gegenüber sensorischen Reizen möglich',
+    ],
+    70: [
+      'Deutliche Hinweise auf Muster im Autismus-Spektrum (ASS)',
+      'Soziale Interaktion, Routinebedarf und/oder sensorische Besonderheiten sind ausgeprägt',
+      'Professionelle Abklärung durch Kinder- und Jugendpsychiatrie empfehlenswert',
+      'Im Schulalltag: klare Strukturen, visuelle Unterstützung, ruhige Rückzugsorte helfen',
+    ],
+  },
+  adhs: {
+    50: [
+      'Aufmerksamkeits- und Impulsregulationsmuster auffällig',
+      'Schwierigkeiten mit Warten, Aufgabenabschluss oder Selbststeuerung möglich',
+    ],
+    70: [
+      'Deutliche Hinweise auf ADHS (hyperaktiv-impulsiver oder kombinierter Typ)',
+      'Strukturhilfen, Bewegungspausen und kurze Aufgaben-Einheiten können helfen',
+      'Abklärung durch Kinder- und Jugendpsychiatrie oder Kinderpsychologin empfehlenswert',
+    ],
+  },
+  ads: {
+    50: [
+      'Muster des ADS (ohne Hyperaktivität) möglich: häufiges Träumen, Vergessen, Konzentrationsprobleme',
+      'Kind wirkt äußerlich ruhig, ist aber innerlich oft abgelenkt',
+    ],
+    70: [
+      'Deutliche Hinweise auf ADS (ohne Hyperaktivität)',
+      'Im Unterricht: Sitzplatz vorne, visuelle Checklisten, regelmäßiges Überprüfen',
+      'Abklärung durch Fachstelle empfohlen – ADS wird häufig übersehen',
+    ],
+  },
+  hsp: {
+    50: [
+      'Erhöhte Sensitivität gegenüber Sinnesreizen, Stimmungen oder Stresssituationen erkennbar',
+      'Kind nimmt Umgebung möglicherweise intensiver wahr als Altersgenossen',
+    ],
+    70: [
+      'Ausgeprägte Hochsensibilität (HSP)',
+      'Keine Störung, aber besonderer Bedarf: Reizreduktion, Verständnis, Rückzugsorte',
+      'HSP kann mit anderen Neurodivergenzen kombiniert auftreten',
+    ],
+  },
+  dys: {
+    50: [
+      'Mögliche Hinweise auf Lese-Rechtschreib-Schwäche (LRS/Legasthenie)',
+      'Keine Aussage über Intelligenz – LRS ist eine spezifische Verarbeitungsschwäche',
+    ],
+    70: [
+      'Deutliche Hinweise auf LRS/Legasthenie',
+      'Diagnostik durch Schulpsychologischen Dienst empfohlen',
+      'Nachteilsausgleich, Vorlesen, digitale Hilfsmittel können entlasten',
+    ],
+  },
+};
+
+function showResult(pct) {
+  showScreen('screen-result');
+
+  const name = childName.split(' ')[0];
+  const topDomains = Object.entries(pct)
+    .filter(([,v]) => v >= 50)
+    .sort((a,b) => b[1]-a[1]);
+
+  // ---- CHILD-FACING "DONE" SCREEN (shown first) ----
+  // The expert analysis is hidden behind a password-protected button
+  // so the child just sees a cheerful "well done" message.
+  document.getElementById('resultContent').innerHTML = `
+    <div class="card" id="child-done-card">
+      <div class="result-header">
+        <div class="big-emoji">🎊</div>
+        <h2>Super gemacht, ${name}!</h2>
+        <p>Du hast alle Fragen beantwortet – das war toll! 🌟<br>Jetzt wissen wir viel mehr darüber, wie du die Welt siehst.</p>
+      </div>
+      <div style="text-align:center; margin: 24px 0 8px;">
+        <div style="font-size:3.5rem; margin-bottom: 10px;">🦄✨🌈</div>
+        <p style="font-size:1.05rem; font-weight:700; color:var(--navy); line-height:1.5;">
+          Du bist auf deine ganz eigene Art besonders –<br>und das ist eine echte Stärke!
+        </p>
+      </div>
+      <div style="margin-top: 28px; border-top: 2px solid var(--soft-gray); padding-top: 18px;">
+        <p style="font-size: 0.82rem; color: var(--text-light); text-align:center; margin-bottom: 10px;">
+          🔒 Für Lehrkräfte &amp; Eltern
+        </p>
+        <input type="password" id="expertPw" placeholder="Passwort eingeben…"
+          style="width:100%; font-family:'Nunito',sans-serif; font-size:0.95rem; padding:11px 16px;
+                 border:2px solid #e2e8f0; border-radius:50px; outline:none; margin-bottom:8px;"
+          onkeydown="if(event.key==='Enter') checkExpertPw()"
+        />
+        <button onclick="checkExpertPw()"
+          style="width:100%; font-family:'Nunito',sans-serif; font-weight:800; font-size:0.95rem;
+                 padding:11px; border:none; border-radius:50px; background:var(--navy); color:white;
+                 cursor:pointer;">
+          Auswertung anzeigen
+        </button>
+        <p id="pw-error" style="color:#e53e3e; font-size:0.82rem; text-align:center; margin-top:6px; display:none;">
+          Falsches Passwort.
+        </p>
+      </div>
+    </div>
+    <button class="btn-restart" onclick="restartQuiz()">↩ Neues Quiz starten</button>
+  `;
+
+  // Store pct globally so the expert reveal can access it
+  window._lastPct = pct;
+}
+
+// Default expert password – change here if needed
+const EXPERT_PASSWORD = 'Lehrer2025';
+
+function checkExpertPw() {
+  const input = document.getElementById('expertPw');
+  if (input.value === EXPERT_PASSWORD) {
+    document.getElementById('child-done-card').style.display = 'none';
+    showExpertResult(window._lastPct);
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+    input.value = '';
+    input.focus();
+  }
+}
+
+function showExpertResult(pct) {
+  const name = childName.split(' ')[0];
+  const topDomains = Object.entries(pct)
+    .filter(([,v]) => v >= 50)
+    .sort((a,b) => b[1]-a[1]);
+
+  let summaryEmoji = '🔎';
+  let summaryTitle = `Auswertung für ${name}`;
+  let summaryText = topDomains.length === 0
+    ? 'Die Antworten zeigen keine deutlichen Hinweise auf eine neurodivergente Besonderheit. Das bedeutet nicht, dass keine Unterstützungsbedarfe bestehen können – andere Faktoren (soziale, emotionale, umgebungsbedingte) sollten ebenfalls bedacht werden.'
+    : `Die Antworten zeigen Muster in folgenden Bereichen, die eine nähere Betrachtung lohnen könnten.`;
+
+  let html = `
+    <div class="card">
+      <div class="result-header">
+        <div class="big-emoji">${summaryEmoji}</div>
+        <h2>${summaryTitle}</h2>
+        <p>${summaryText}</p>
+      </div>
+
+      <div class="section-divider">Profil-Übersicht</div>
+      <div class="profile-bars" id="profileBars">
+  `;
+
+  for (const [domain, info] of Object.entries(DOMAINS)) {
+    const p = pct[domain] || 0;
+    const lvl = getLevel(p);
+    html += `
+      <div class="profile-bar-row">
+        <div class="pb-label">
+          <span>${info.emoji} ${info.label}</span>
+          <span style="color:${lvl.color}; font-size:0.82rem;">${lvl.label} (${p}%)</span>
+        </div>
+        <div class="pb-track">
+          <div class="pb-fill" id="bar-${domain}" style="background:${info.color}; width:0%"></div>
+        </div>
+      </div>
+    `;
+  }
+  html += '</div>';
+
+  // Hints
+  if (topDomains.length > 0) {
+    html += `<div class="section-divider">Hinweise & Beobachtungen</div>`;
+    for (const [domain, p] of topDomains) {
+      const info = DOMAINS[domain];
+      const hints = DOMAIN_HINTS[domain];
+      let relevantHints = [];
+      if (p >= 70 && hints[70]) relevantHints = hints[70];
+      else if (p >= 50 && hints[50]) relevantHints = hints[50];
+
+      if (relevantHints.length > 0) {
+        const lvl = getLevel(p);
+        html += `
+          <div class="result-section">
+            <h3 style="color:${lvl.color}">${info.emoji} ${info.label}</h3>
+            <div class="hint-cards">
+              ${relevantHints.map(h => `<div class="hint-card" style="border-color:${info.color}">${h}</div>`).join('')}
+            </div>
+          </div>
+        `;
+      }
+    }
+  }
+
+  // Next steps
+  html += `
+    <div class="next-steps">
+      <h3>🗺️ Mögliche nächste Schritte</h3>
+      <ul>
+        <li>Gespräch mit den Eltern führen und Beobachtungen teilen</li>
+        <li>Schulpsychologischen Dienst oder Beratungsstelle hinzuziehen</li>
+        <li>Kinder- und Jugendpsychiatrie (KJP) oder Kinderpsychologin für Diagnostik</li>
+        <li>Förderbedarf im Unterricht niederschwellig bereits jetzt berücksichtigen</li>
+        <li>Stärken des Kindes in den Mittelpunkt stellen</li>
+      </ul>
+    </div>
+
+    <div class="disclaimer">
+      ⚠️ <strong>Wichtiger Hinweis:</strong> Dieses Tool ist kein diagnostisches Instrument und ersetzt keine professionelle Abklärung. Die Auswertung basiert auf Selbstauskunft und gibt erste informelle Orientierungspunkte. Für eine Diagnose ist eine Fachkraft (Kinder- und Jugendpsychiatrie, klinische Kinderpsychologie) notwendig.
+    </div>
+  </div>
+
+  <button class="btn-print" onclick="window.print()">🖨️ Ergebnis drucken / als PDF speichern</button>
+  <button class="btn-restart" onclick="restartQuiz()">↩ Neue Auswertung starten</button>
+  `;
+
+  document.getElementById('resultContent').innerHTML += html;
+
+  // Animate bars after render
+  setTimeout(() => {
+    for (const [domain] of Object.entries(DOMAINS)) {
+      const bar = document.getElementById('bar-' + domain);
+      if (bar) bar.style.width = (pct[domain] || 0) + '%';
+    }
+  }, 200);
+}
+
+function restartQuiz() {
+  scores = { autism: 0, adhs: 0, ads: 0, hsp: 0, dys: 0 };
+  answers = [];
+  currentQ = 0;
+  showScreen('screen-start');
+}
+</script>
+</body>
+</html>
